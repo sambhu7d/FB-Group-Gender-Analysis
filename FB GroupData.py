@@ -9,6 +9,7 @@ from sys import platform
 import time
 import pip
 import os
+import matplotlib.pyplot as plt
 
 def install(package):
     if hasattr(pip, 'main'):
@@ -127,11 +128,13 @@ def automation(driver):
             c+=1
             
         print('Total Scroll =' + str(c))
-        
-        
+              
     while True:
         
         try:
+            
+        
+           
             driver.get(url)
             e=driver.find_element_by_id("email") #//*[@id="email"]
             p=driver.find_element_by_id("pass")
@@ -149,19 +152,27 @@ def automation(driver):
                 bt=driver.find_element_by_id("u_0_3")
                 bt.click()
                 bt.send_keys(Keys.RETURN)
-            
-            driver.refresh()
-            driver.fullscreen_window()
-            title=driver.title
+                
+            break
+                
+        except:
+            print('Network Down ')
+            time.sleep(10)
         
-            try:
-                m=driver.find_element_by_css_selector('#mount_0_0 > div > div:nth-child(1) > div.rq0escxv.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb > div > div > div.j83agx80.cbu4d94t.d6urw2fd.dp1hu0rb.l9j0dhe7.du4w35lb > div.l9j0dhe7.dp1hu0rb.cbu4d94t.j83agx80 > div.j83agx80.cbu4d94t > div > div > div > div > div > div > div > div > div > div > div:nth-child(1) > div > div > div > div > div:nth-child(1) > h2 > span > span')
-            except:
-                m=driver.find_element_by_css_selector("#mount_0_0 > div > div:nth-child(1) > div.rq0escxv.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb > div > div > div.j83agx80.cbu4d94t.d6urw2fd.dp1hu0rb.l9j0dhe7.du4w35lb > div.l9j0dhe7.dp1hu0rb.cbu4d94t.j83agx80 > div.j83agx80.cbu4d94t > div > div > div > div > div > div > div > div > div > div > div:nth-child(1) > div > div > div > div > div:nth-child(1) > h2 > span > span")
+    while True:
         
-            str_member=m.text
+        driver.refresh()
+        driver.fullscreen_window()
+        title=driver.title
+        ps=driver.page_source
+        soup=bs4.BeautifulSoup(ps,'html.parser')
+        m=soup.find("strong")
+        print(m)
+        
+        if not m==None:
+            members=m.get_text()
             total=''
-            for i in str_member:
+            for i in members:
                 try:
                     int(i)
                     total+=i
@@ -173,13 +184,10 @@ def automation(driver):
             print('Total Member in '+ title + ' is ' + str(total))
             break
         
-        except:
-            print("No Internet Connection")
-            print("Retrying in 10 second")
-            
-            time.sleep(10)
-            
-         
+        print("No Internet Connection")
+        print("Retrying in 10 second")
+        time.sleep(10)
+
     scroll_to_end()      
     ps=driver.page_source
     soup=bs4.BeautifulSoup(ps,'html.parser')
@@ -212,6 +220,7 @@ def gender(driver):
     print('Gender Data')
     print()
     file=[]
+    gfile=[]
     i=0
     while i < len(links):
         driver.implicitly_wait(1)
@@ -229,12 +238,15 @@ def gender(driver):
                 if ' him ' in text or ' his ' in text:
                     print(names[i] +'\t'+'M')
                     file.append([names[i],links[i],'M',True,1]) 
+                    gfile.append(1)
                 elif ' her ' in text :
                     print(names[i] +'\t'+'F')
                     file.append([names[i],links[i],'F',False,0])
+                    gfile.append(0)
                 else:
                     print(names[i] +'\t'+'T') 
-                    file.append([names[i],links[i],'T','NONE',2])                    
+                    file.append([names[i],links[i],'T','NONE',2])
+                    gfile.append(2)                    
             except: #Page
                 # driver.implicitly_wait(1)
                 g=driver.find_element_by_css_selector('#mount_0_0 > div > div:nth-child(1) > div.rq0escxv.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb > div > div > div.j83agx80.cbu4d94t.d6urw2fd.dp1hu0rb.l9j0dhe7.du4w35lb > div.l9j0dhe7.dp1hu0rb.cbu4d94t.j83agx80 > div.rq0escxv.lpgh02oy.du4w35lb.rek2kq2y > div > div > div > div.rq0escxv.l9j0dhe7.du4w35lb.j83agx80.cbu4d94t.d2edcug0.o8rfisnq > div > div > div.oajrlxb2.tdjehn4e.gcieejh5.bn081pho.humdl8nn.izx4hr6d.rq0escxv.nhd2j8a9.j83agx80.p7hjln8o.kvgmc6g5.cxmmr5t8.oygrvhab.hcukyx3x.jb3vyjys.tkv8g59h.qt6c0cv9.fl8dtwsd.i1ao9s8h.esuyzwwr.f1sip0of.lzcic4wl.l9j0dhe7.abiwlrkh.p8dawk7l.beltcj47.p86d2i9g.aot14ch1.kzx2olss.cbu4d94t.taijpn5t.ni8dbmo4.stjgntxs.k4urcfbm.tv7at329 > div.rq0escxv.l9j0dhe7.du4w35lb.j83agx80.pfnyh3mw.taijpn5t.bp9cbjyn.owycx6da.btwxx1t3.c4xchbtz.by2jbhx6 > div:nth-child(2) > span')
@@ -256,19 +268,23 @@ def gender(driver):
                     if 'Gender' in g.text:
                         if 'Male' in g.text:
                             print(names[i] +'\t'+'M')
-                            file.append([names[i],links[i],'M',True,1])        
+                            file.append([names[i],links[i],'M',True,1]) 
+                            gfile.append(1)
                         elif 'Female' in g.text :
                             print(names[i] +'\t'+'F') 
                             file.append([names[i],links[i],'F',False,0])        
+                            gfile.append(0)
                         else:
                             print(names[i] +'\t'+'T') 
                             file.append([names[i],links[i],'T','NONE',2])        
+                            gfile.append(2)
                         bool_=True
                         break
                     
                 if not bool_:
-                    print(names[i] +'\t'+' ')
-                    file.append([names[i],links[i],'-','----','-'])
+                    print(names[i] +'\t'+'N')
+                    file.append([names[i],links[i],'N','----','3'])
+                    gfile.append(3)
                         
                 i+=1             
             else: #check Internet
@@ -282,36 +298,71 @@ def gender(driver):
                    print('Oops! Something Went Wrong')
                                                                
     driver.close()
-    return file
+    return file,gfile
            
-def save_file(file,t):
-    df=pd.DataFrame(file, columns =['Name', 'Link','Gender','Boolean','Binary']) 
+def save_file():
+    df=pd.DataFrame(f, columns =['Name', 'Link','Gender','Boolean','Binary']) 
     df=df.sort_values(by=['Gender','Name'],ascending=True)
     df = df.reset_index(drop=True)
     df.index+= 1  
-    cwd =os.getcwd()
-    t=title
-    t=t.replace('|',' ')
-    # t=t.remove(' ')
-    if OS=='M':
-        file_path= cwd + '/' + t + '.csv'
-    if OS=='W':
-        file_path= cwd + '\\' + t + '.csv' 
-    df.to_csv(file_path, index_label='Event_id')
     
-    return file_path
-
-
-
+    df.to_csv(file_path+ 'Data.csv', index_label='Event_id')
+    
+def save_gFile():
+    df=pd.DataFrame(g, columns =['Gender']) 
+    df=df.sort_values(by=['Gender'],ascending=True)
+    df = df.reset_index(drop=True)
+    df.index+= 1    
+    df.to_csv(file_path + 'Gender.csv',index_label='Event_id')
+    
+def piePlot():
+    
+    # Pie chart, where the slices will be ordered and plotted counter-clockwise:
+    labels = 'Female','Trans', 'Male',  'No Data'
+    sizes = [g.count(0),g.count(2),g.count(1),g.count(3)]
+    explode = (0.1, 0.1, 0.1, 0.1)  # only "explode" the 2nd slice (i.e. 'Hogs')
+    
+    fig1, ax1 = plt.subplots()
+    ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+            shadow=True, startangle=90)
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    plt.savefig(file_path+'Pie Chart')
+    plt.show()
+   
 OS=OS_()
+
 user,pswd,url=fb()
 pin=Auth()
 driver=chrome_driver(cd)
-print('\n')        
-title,data=automation(driver)
-names,links=check_dup()
-file=gender(driver)
-filePath=save_file(file,title)
 
-print('Data saved in ')
-print(filePath)
+print('\n')       
+ 
+t,data=automation(driver)
+names,links=check_dup()
+f,g=gender(driver)
+
+print('Offline Work')
+
+cwd =os.getcwd()
+
+t=t.replace('Facebook','')
+t=t.replace(' | ','')
+
+if OS=='M':
+    file_path= cwd + '/' + t + '/'
+if OS=='W':
+    file_path= cwd + '\\' + t + '\\'
+  
+try:  
+    os.mkdir(file_path)  
+except OSError as error:  
+    print(error)   
+
+save_file()
+save_gFile()
+piePlot()
+
+print()
+print('File Saved')
+print(file_path)
+print('\n'+'Godd Bye!!!')
